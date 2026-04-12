@@ -251,7 +251,112 @@ import os
 Sec_Korneev_2=os.environ['Sec_Korneev_2']
 print(Sec_Korneev_2)
 
+#Задание 2 (вариант 6)
+from sympy import *
 
-import os
-Sec_Korneev_3=os.environ['Sec_Korneev_3']
-print(Sec_Korneev_3)
+k, T, C, L = symbols('k C T L')
+
+C_ost_4 = 15000
+Am_lst_4 = []
+C_ost_lst_4 = []
+for i in range(8):
+    Am = (C - L) / T
+    C_ost_4 -= Am.subs({C: 15000, T: 8, L: 0})
+    Am_lst_4.append(round(Am.subs({C: 15000, T: 8, L: 0}), 2))
+    C_ost_lst_4.append(round(C_ost_4, 2))
+print('Am_lst_4:', Am_lst_4)
+print('C_ost_lst_4:', C_ost_lst_4)
+
+#2-ой способ 
+Aj = 0
+C_ost_4 = 15000
+Am_lst_2_4 = []
+C_ost_lst_2_4 = []
+for i in range(8):
+    Am = k * 1 / T * (C - Aj)
+    C_ost_4 -= Am.subs({C: 15000, T: 8, k: 2})
+    Am_lst_2_4.append(round(Am.subs({C: 15000, T: 8, k: 2}), 2))
+    Aj += Am
+    C_ost_lst_2_4.append(round(C_ost_4, 2))
+print('Am_lst_2_4:', Am_lst_2_4)
+print('C_ost_lst_2_4:', C_ost_lst_2_4)
+
+#Таблица 
+import pandas as pd
+
+Y = range(1, 9)
+table1 = list(zip(Y, C_ost_lst_4, Am_lst_4))
+table2 = list(zip(Y, C_ost_lst_2_4, Am_lst_2_4))
+tframe = pd.DataFrame(table1, columns=['Y', 'C_ost_lst_4', 'Am_lst_4'])
+tframe2 = pd.DataFrame(table2, columns=['Y', 'C_ost_lst_2_4', 'Am_lst_2_4'])
+print(tframe)#Что делает? Выводит содержимое переменной - ответила Вагизова
+print(tframe2)
+
+#Визуализация 
+import numpy as np
+import matplotlib.pyplot as plt
+
+plt.figure()
+plt.plot(tframe['Y'], tframe['C_ost_lst_4'], label='Am')
+plt.savefig('chart7.png')
+plt.figure()
+plt.plot(tframe2['Y'], tframe2['C_ost_lst_2_4'], label='Am_2')
+plt.savefig('chart8.png')#Что делает? Сохраняет текущий график - ответила Вагизова
+
+#Круговая диаграмма 
+vals = Am_lst_4
+labels = [str(x) for x in range(1, 9)]
+explode = (0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1)
+fig, ax = plt.subplots()
+ax.pie(vals,
+       labels=labels,
+       autopct='%1.1f%%',
+       shadow=True,
+       explode=explode,
+       wedgeprops={
+           'lw': 1,
+           'ls': '--',
+           'edgecolor': "k"
+       },
+       rotatelabels=True)
+ax.axis("equal")
+plt.savefig('chart9.png') 
+
+#Круговая диаграмма (данные от 2-го способа)
+vals = Am_lst_2_4
+labels = [str(x) for x in range(1, 9)]
+explode = (0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1)
+fig, ax = plt.subplots()
+ax.pie(vals,
+       labels=labels,
+       autopct='%1.1f%%',
+       shadow=True,
+       explode=explode,
+       wedgeprops={
+           'lw': 1,
+           'ls': '--',
+           'edgecolor': "k"
+       },
+       rotatelabels=True)
+ax.axis("equal")
+plt.savefig('chart10.png')
+
+#Гистограмма (индивидуальное задание)
+table1 = list(zip(Y, Am_lst_4))
+table2 = list(zip(Y, Am_lst_2_4))
+tframe = pd.DataFrame(table1, columns=['Y', 'Am_lst_4'])#Что это? использование библиотеки pandas - ответила Вагизова
+tframe2 = pd.DataFrame(table2, columns=['Y', 'Am_lst_2_4'])
+
+plt.figure()
+plt.bar(tframe['Y'], tframe['Am_lst_4'])
+plt.savefig('chart11.png')
+
+plt.figure()
+plt.bar(tframe2['Y'], tframe2['Am_lst_2_4'])
+plt.savefig('chart12.png')
+#Проверила Вагизова К.Х. 
+# 5 из 5
+#Индивидуальное задание лаба 3
+# cloud_failure_detector.py
+# Микросервис для обнаружения отказов в облачной инфраструктуре
+# Лабораторная работа 1 - индивидуальное задание 
