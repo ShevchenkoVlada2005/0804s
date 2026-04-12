@@ -378,9 +378,7 @@ MEMORY_THRESHOLD = float(s3)
 # cloud_failure_detector.py
 # Микросервис для обнаружения отказов в облачной инфраструктуре
 # Лабораторная работа 3 - индивидуальное задание вариант 164
-# cloud_failure_detector.py
-# Микросервис для обнаружения отказов в облачной инфраструктуре
-# Лабораторная работа 3 - индивидуальное задание вариант 164
+
 
 import pandas as pd
 import numpy as np
@@ -401,7 +399,6 @@ print("Shev1 =", s1)
 print("Shev2 =", s2)
 print("Shev3 =", s3)
 
-# Преобразуем секреты в нужные переменные
 FAILURE_THRESHOLD = int(s1)
 CPU_THRESHOLD = float(s2)
 MEMORY_THRESHOLD = float(s3)
@@ -415,7 +412,6 @@ OUTPUT_CHART = "failure_report.png"
 
 # ========== 1. ЗАГРУЗКА ДАННЫХ ==========
 def load_data():
-    """Загружаем метрики из JSON файла"""
     with open(INPUT_FILE, 'r') as f:
         data = json.load(f)
     print(f"Загружено {len(data)} записей")
@@ -423,8 +419,6 @@ def load_data():
 
 # ========== 2. АНАЛИЗ ОТКАЗОВ ==========
 def analyze_failures(data):
-    """Анализируем метрики и находим узлы с отказами"""
-
     df = pd.DataFrame(data)
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     df = df.sort_values(['node_id', 'timestamp'])
@@ -460,8 +454,6 @@ def analyze_failures(data):
 
 # ========== 3. ВЫВОД ТАБЛИЦЫ ==========
 def print_table(df):
-    """Выводим таблицу с результатами мониторинга"""
-
     table = df.tail(15).copy()
     table['time'] = table['timestamp'].dt.strftime('%H:%M:%S')
     table['cpu'] = table['cpu_usage'].apply(lambda x: f"{x:.0f}%")
@@ -478,8 +470,6 @@ def print_table(df):
 
 # ========== 4. ВЫВОД СТАТИСТИКИ ==========
 def print_statistics(df):
-    """Выводим сводную статистику"""
-
     print("\n" + "=" * 60)
     print("СТАТИСТИКА ПО УЗЛАМ")
     print("=" * 60)
@@ -509,8 +499,6 @@ def print_statistics(df):
 
 # ========== 5. СОХРАНЕНИЕ РЕЗУЛЬТАТОВ ==========
 def save_results(df, blocked_nodes):
-    """Сохраняем список проблемных узлов в JSON"""
-
     failed_list = []
     for node in blocked_nodes:
         node_data = df[df['node_id'] == node].iloc[-1]
@@ -525,115 +513,48 @@ def save_results(df, blocked_nodes):
         json.dump(failed_list, f, ensure_ascii=False, indent=2)
 
     print(f"\nРезультаты сохранены в файл: {OUTPUT_JSON}")
+
 # ========== 6. ПОСТРОЕНИЕ ГРАФИКА ==========
 def create_chart(df, blocked_nodes):
-    """Строит улучшенную диаграмму состояния узлов"""
-
-    # Подсчитываем количество узлов в каждом состоянии
     blocked_count = len(blocked_nodes)
     unstable_count = len(df[(df['is_failed'] == True) & (df['need_block'] == False)]['node_id'].unique())
     healthy_count = df['node_id'].nunique() - blocked_count - unstable_count
 
-    # Создаем фигуру с двумя графиками
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-    fig.suptitle('Мониторинг облачной инфраструктуры', fontsize=16, fontweight='bold')
-
-    # ===== ГРАФИК 1: Круговая диаграмма =====
     sizes = []
     labels = []
     colors = []
-    explode = []
 
     if healthy_count > 0:
         sizes.append(healthy_count)
-        labels.append(f'РАБОТАЕТ\n{healthy_count} узлов')
+        labels.append(f'РАБОТАЕТ ({healthy_count})')
         colors.append('#2ecc71')
-        explode.append(0)
 
     if unstable_count > 0:
         sizes.append(unstable_count)
-        labels.append(f'НЕСТАБИЛЬНЫ\n{unstable_count} узлов')
+        labels.append(f'НЕСТАБИЛЕН ({unstable_count})')
         colors.append('#f39c12')
-        explode.append(0.05)
 
     if blocked_count > 0:
         sizes.append(blocked_count)
-        labels.append(f'ЗАБЛОКИРОВАНЫ\n{blocked_count} узлов')
+        labels.append(f'ЗАБЛОКИРОВАН ({blocked_count})')
         colors.append('#e74c3c')
-        explode.append(0.1)
 
-    if len(sizes) > 0:
-        wedges, texts, autotexts = ax1.pie(sizes, explode=explode, labels=labels, 
-                                            colors=colors, autopct='%1.1f%%', 
-                                            startangle=90, shadow=True)
-        for autotext in autotexts:
-            autotext.set_color('white')
-            autotext.set_fontsize(12)
-            autotext.set_fontweight('bold')
+    if len(sizes) == 0:
+        sizes = [1]
+        labels = ['НЕТ ДАННЫХ']
+        colors.append('#95a5a6')
 
-    ax1.set_title('Распределение узлов по состоянию', fontsize=12, fontweight='bold')
+    plt.figure(figsize=(8, 6))
+    plt.pie(sizes, labels=labels, colors=colors, autopct='%1.0f%%', startangle=90)
+    plt.title('Состояние узлов облачной инфраструктуры', fontsize=14, fontweight='bold')
 
-    # ===== ГРАФИК 2: Гистограмма загрузки =====
-    # Берем последние данные по каждому узлу
-    latest_data = df.groupby('node_id').last().reset_index()
-    latest_data = latest_data.sort_values('cpu_usage', ascending=False)
-
-    nodes = latest_data['node_id'].tolist()[:8]  # максимум 8 узлов
-    cpu_values = latest_data['cpu_usage'].tolist()[:8]
-    memory_values = latest_data['memory_usage'].tolist()[:8]
-
-    x_pos = range(len(nodes))
-    width = 0.35
-
-    bars1 = ax2.bar([x - width/2 for x in x_pos], cpu_values, width, label='CPU %', color='#3498db')
-    bars2 = ax2.bar([x + width/2 for x in x_pos], memory_values, width, label='Память %', color='#e67e22')
-
-    # Добавляем пороговые линии
-    ax2.axhline(y=CPU_THRESHOLD, color='red', linestyle='--', linewidth=2, label=f'Порог CPU ({CPU_THRESHOLD}%)')
-    ax2.axhline(y=MEMORY_THRESHOLD, color='orange', linestyle='--', linewidth=2, label=f'Порог памяти ({MEMORY_THRESHOLD}%)')
-
-    # Подписываем столбцы
-    for bar, val in zip(bars1, cpu_values):
-        if val > CPU_THRESHOLD:
-            ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1, f'{val:.0f}%', 
-                    ha='center', fontsize=8, fontweight='bold', color='red')
-        else:
-            ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1, f'{val:.0f}%', 
-                    ha='center', fontsize=8)
-
-    for bar, val in zip(bars2, memory_values):
-        if val > MEMORY_THRESHOLD:
-            ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1, f'{val:.0f}%', 
-                    ha='center', fontsize=8, fontweight='bold', color='orange')
-
-    ax2.set_xlabel('Узлы', fontsize=11, fontweight='bold')
-    ax2.set_ylabel('Загрузка (%)', fontsize=11, fontweight='bold')
-    ax2.set_title('Текущая загрузка узлов', fontsize=12, fontweight='bold')
-    ax2.set_xticks(x_pos)
-    ax2.set_xticklabels(nodes, rotation=45, ha='right')
-    ax2.legend(loc='upper left', fontsize=9)
-    ax2.set_ylim(0, 105)
-    ax2.grid(True, alpha=0.3, axis='y')
-
-    # Добавляем итоговую информацию внизу
-    plt.figtext(0.5, 0.01, 
-                f'Дата: {datetime.now().strftime("%d.%m.%Y %H:%M:%S")} | '
-                f'Порог блокировки: {FAILURE_THRESHOLD} отказа подряд | '
-                f'Всего узлов: {df["node_id"].nunique()}',
-                ha='center', fontsize=9, style='italic',
-                bbox=dict(boxstyle='round', facecolor='#ecf0f1', alpha=0.8))
-
-    plt.tight_layout()
-    plt.savefig(OUTPUT_CHART, dpi=150, bbox_inches='tight', facecolor='white')
+    plt.savefig(OUTPUT_CHART, dpi=120, bbox_inches='tight')
     plt.close()
 
-    print(f"\nУлучшенный график сохранен в файл: {OUTPUT_CHART}")
+    print(f"\nГрафик сохранен в файл: {OUTPUT_CHART}")
 
-    
 # ========== 7. ГЛАВНАЯ ФУНКЦИЯ ==========
 def main():
-    """Главная функция программы"""
-
     print("\n" + "=" * 70)
     print("КОНТЕЙНЕР БЕЗОПАСНОСТИ ОБЛАЧНОЙ ИНФРАСТРУКТУРЫ")
     print("Обнаружение отказов (вариант 164)")
@@ -657,8 +578,9 @@ def main():
     print("РАБОТА ЗАВЕРШЕНА")
     print("=" * 70)
     print(f"\nСозданные файлы:")
-    print(f"  - {OUTPUT_JSON} (список проблемных узлов)")
-    print(f"  - {OUTPUT_CHART} (диаграмма состояния узлов)")
+    print(f"  - {OUTPUT_JSON}")
+    print(f"  - {OUTPUT_CHART}")
 
 if __name__ == "__main__":
     main()
+
