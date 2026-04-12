@@ -1,0 +1,15 @@
+[
+    {"timestamp": "2026-04-12T10:00:00", "node_id": "node-1", "node_type": "physical", "parent_node": null, "cpu_usage": 95.0, "memory_usage": 88.0},
+    {"timestamp": "2026-04-12T10:00:05", "node_id": "node-1", "node_type": "physical", "parent_node": null, "cpu_usage": 96.0, "memory_usage": 89.0},
+    {"timestamp": "2026-04-12T10:00:10", "node_id": "node-1", "node_type": "physical", "parent_node": null, "cpu_usage": 97.0, "memory_usage": 90.0},
+    {"timestamp": "2026-04-12T10:00:15", "node_id": "node-1", "node_type": "physical", "parent_node": null, "cpu_usage": 98.0, "memory_usage": 91.0},
+    {"timestamp": "2026-04-12T10:00:20", "node_id": "node-1", "node_type": "physical", "parent_node": null, "cpu_usage": 99.0, "memory_usage": 92.0},
+    {"timestamp": "2026-04-12T10:00:00", "node_id": "node-2", "node_type": "physical", "parent_node": null, "cpu_usage": 30.0, "memory_usage": 45.0},
+    {"timestamp": "2026-04-12T10:00:05", "node_id": "node-2", "node_type": "physical", "parent_node": null, "cpu_usage": 32.0, "memory_usage": 46.0},
+    {"timestamp": "2026-04-12T10:00:10", "node_id": "node-2", "node_type": "physical", "parent_node": null, "cpu_usage": 31.0, "memory_usage": 44.0},
+    {"timestamp": "2026-04-12T10:00:00", "node_id": "vm-1", "node_type": "virtual", "parent_node": "node-1", "cpu_usage": 45.0, "memory_usage": 32.0},
+    {"timestamp": "2026-04-12T10:00:05", "node_id": "vm-1", "node_type": "virtual", "parent_node": "node-1", "cpu_usage": 46.0, "memory_usage": 33.0},
+    {"timestamp": "2026-04-12T10:00:10", "node_id": "vm-1", "node_type": "virtual", "parent_node": "node-1", "cpu_usage": 92.0, "memory_usage": 85.0},
+    {"timestamp": "2026-04-12T10:00:15", "node_id": "vm-1", "node_type": "virtual", "parent_node": "node-1", "cpu_usage": 93.0, "memory_usage": 86.0},
+    {"timestamp": "2026-04-12T10:00:20", "node_id": "vm-1", "node_type": "virtual", "parent_node": "node-1", "cpu_usage": 94.0, "memory_usage": 87.0}
+]
